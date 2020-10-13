@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Mini game Mathieu</title>
+
+    <style>
+        body {
+            height: 100vh;
+        }
+
+        #container {
+            display: grid;
+            height: 100vh;
+            grid-gap: 4px;
+            grid-template-columns: repeat(10, 50px);
+            grid-template-rows: repeat(10, 50px);
+        }
+
+        .caseGame {
+            height: 100%;
+            background-color: green;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .caseGame.search span{
+            display: none;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div id="container"></div>
+
+    <script>
+
+
+        function createElementDiv(nameClass, x, y, info) {
+            div = document.createElement("div");
+
+            div.setAttribute("posX", x);
+            div.setAttribute("posY", y);
+            div.setAttribute("class",nameClass +" search");
+
+            div.id = x.toString() + y.toString();
+
+            var closeSpan = document.createElement("span");
+            closeSpan.textContent = info;
+            div.appendChild(closeSpan);
+
+            div.addEventListener("click", function (e) {
+                let posX = e.target.getAttribute("posX");
+                let posY = e.target.getAttribute("posY");
+
+                console.log("Show: X ", posX, " Show: Y ", posY);
+                let targetDiv = document.getElementById(posX.toString() + posY.toString());
+                // remove class
+                targetDiv.setAttribute("class",nameClass );
+
+                if (map[posY][posX] === "X") {
+                    alert("You found the bomb.... fail");
+
+                }
+                // change color and display value of the case for x time
+                setTimeout(() => {
+                    div.setAttribute("class",nameClass +" search");
+                    // add class again if not demineur
+                        console.log("Hide: X ", posX, " Hide: Y ", posY);
+                }, 3000)
+            })
+
+            return div;
+        }
+
+        let container       = document.getElementById("container");
+        let map             = new Array(10);
+        let positionMines   = [
+            [0,0],[2,1], [5,5], [2,5], [7,7]
+        ];
+
+        // generate div and table
+        for (var i = 0; i < 10 ; i++) {
+            map[i] = new Array(10).fill(" ", 0, 10);
+            for (var j = 0; j < 10; j++) {
+
+                let info = "-";
+                for (pos of positionMines) {
+                    if (pos[0] === i && pos[1] === j) {
+                        info = "X";
+                    }
+                }
+
+                let div = createElementDiv("caseGame", i, j, info);
+                container.appendChild(div);
+
+                map[i][j] = info;
+            }
+        }
+
+
+        function setValue(x, y, info) {
+            element = document.getElementById(x.toString() + y.toString());
+
+            var closeSpan = document.createElement("span");
+            closeSpan.textContent = info;
+            element.innerHTML = '';
+            element.append(closeSpan);
+        }
+
+
+        // return nbr mines arroudn this position
+        function checkArroundPoint(y, x) {
+            let nbrMine = 0;
+            // check that LEFT BORDER
+                // top left
+                if ((0< x && y< 0) &&  map[y-1][x-1] === "X") {
+                    nbrMine++;
+                }
+
+                // middle left
+                if ((0< x) && map[y][x-1]=== "X") {
+                    console.log("OK MINE");
+                    nbrMine++;
+                }
+                // botton left
+                if ((0 < x && y < 9) && map[y+1][x-1]=== "X") {
+                    nbrMine++;
+                }
+            // check that RIGHT BORDER
+                // top right
+                if (( x < 9 && 0 < y ) && map[y-1][x+1]=== "X") {
+                    nbrMine++;
+                }
+
+
+                // middle right
+                if (( x < 9 ) &&  map[y][x+1]=== "X") {
+                    nbrMine++;
+                }
+                // botton right
+                if (( x  < 9&& y < 9) &&  map[y+1][x+1]=== "X") {
+                    nbrMine++;
+                }
+
+            // check that TOP BORDER
+
+                // top center
+                if (( 0 < y ) &&  map[y-1][x]=== "X") {
+                    nbrMine++;
+                }
+
+
+            // check that BOTTOM BORDER
+
+                // botton center
+                if (( y < 9 ) && map[y+1][x]=== "X") {
+                    nbrMine++;
+                }
+
+                return nbrMine;
+        }
+
+        // generate the numbers arround the bomb
+        function genNumberArroundPosBomb() {
+            for (let i =0; i< 10; i++) {
+
+                for (let j =0; j< 10; j++) {
+
+                    if (map[i][j] != "X") {
+                        let nbrMine = checkArroundPoint(i, j);
+                        setValue(i,j, nbrMine);
+                    }
+
+                }
+
+            }
+        }
+
+        genNumberArroundPosBomb();
+
+    </script>
+</body>
+</html>
